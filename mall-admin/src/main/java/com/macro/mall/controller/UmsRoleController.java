@@ -1,14 +1,17 @@
 package com.macro.mall.controller;
 
+import cn.hutool.json.JSONUtil;
 import com.macro.mall.common.api.CommonResult;
 import com.macro.mall.model.UmsPermission;
 import com.macro.mall.model.UmsRole;
 import com.macro.mall.service.UmsRoleService;
+import io.micrometer.core.instrument.util.JsonUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.spring.web.json.Json;
 
 import java.util.List;
 
@@ -26,8 +29,10 @@ public class UmsRoleController {
     @ApiOperation("添加角色")
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     @ResponseBody
-    public CommonResult create(@RequestBody UmsRole role) {
-        int count = roleService.create(role);
+    public CommonResult create(String role,
+                               @RequestParam("permissionIds") List<Long> permissionIds) {
+        UmsRole umsRole = JSONUtil.toBean(role,UmsRole.class);
+        int count = roleService.create(umsRole,permissionIds);
         if (count > 0) {
             return CommonResult.success(count);
         }
@@ -67,9 +72,10 @@ public class UmsRoleController {
     @ApiOperation("修改角色权限")
     @RequestMapping(value = "/permission/update", method = RequestMethod.POST)
     @ResponseBody
-    public CommonResult updatePermission(@RequestParam Long roleId,
+    public CommonResult updatePermission( String role,
                                          @RequestParam("permissionIds") List<Long> permissionIds) {
-        int count = roleService.updatePermission(roleId, permissionIds);
+        UmsRole umsRole = JSONUtil.toBean(role,UmsRole.class);
+        int count = roleService.updatePermission(umsRole, permissionIds);
         if (count > 0) {
             return CommonResult.success(count);
         }

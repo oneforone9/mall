@@ -14,7 +14,8 @@ public interface UmsRoleService {
     /**
      * 添加角色
      */
-    int create(UmsRole role);
+    @Transactional
+    int create(UmsRole role,List<Long> permissionIds);
 
     /**
      * 修改角色信息
@@ -35,7 +36,7 @@ public interface UmsRoleService {
      * 修改指定角色的权限
      */
     @Transactional
-    int updatePermission(Long roleId, List<Long> permissionIds);
+    int updatePermission(UmsRole role, List<Long> permissionIds);
 
     /**
      * 获取角色列表

@@ -25,12 +25,21 @@ public class UmsRoleServiceImpl implements UmsRoleService {
     @Autowired
     private UmsRolePermissionRelationDao rolePermissionRelationDao;
     @Override
-    public int create(UmsRole role) {
+    public int create(UmsRole role,List<Long> permissionIds) {
         role.setCreateTime(new Date());
         role.setStatus(1);
         role.setAdminCount(0);
         role.setSort(0);
-        return roleMapper.insert(role);
+        int roleId = roleMapper.insert(role);
+
+        List<UmsRolePermissionRelation> relationList = new ArrayList<>();
+        for (Long permissionId : permissionIds) {
+            UmsRolePermissionRelation relation = new UmsRolePermissionRelation();
+            relation.setRoleId(role.getId());
+            relation.setPermissionId(permissionId);
+            relationList.add(relation);
+        }
+        return rolePermissionRelationDao.insertList(relationList);
     }
 
     @Override
@@ -52,7 +61,12 @@ public class UmsRoleServiceImpl implements UmsRoleService {
     }
 
     @Override
-    public int updatePermission(Long roleId, List<Long> permissionIds) {
+    public int updatePermission(UmsRole role, List<Long> permissionIds) {
+        long roleId = role.getId();
+//        if(role.getId()==null){
+//
+//        }
+        roleMapper.updateByPrimaryKey(role);
         //先删除原有关系
         UmsRolePermissionRelationExample example=new UmsRolePermissionRelationExample();
         example.createCriteria().andRoleIdEqualTo(roleId);
